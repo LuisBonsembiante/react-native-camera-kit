@@ -7,10 +7,13 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.hardware.SensorManager
 import android.media.AudioManager
-import android.media.MediaActionSound
+import android.media.AudioAttributes
 import android.net.Uri
 import android.util.DisplayMetrics
 import android.util.Log
@@ -24,6 +27,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LifecycleObserver
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -38,9 +42,10 @@ import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.RectF
+import android.media.MediaPlayer
+import android.os.Build
+import android.os.Vibrator
+import android.os.VibrationEffect
 
 class RectOverlay constructor(context: Context) :
         View(context) {
@@ -101,6 +106,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var scanBarcode: Boolean = false
     private var frameColor = Color.GREEN
     private var laserColor = Color.RED
+    private lateinit var mediaPlayer: MediaPlayer
 
     private fun getActivity() : Activity {
         return currentContext.currentActivity!!
@@ -393,9 +399,41 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         flashViewFinder()
 
         val audio = getActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        mediaPlayer = MediaPlayer()
         if (audio.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-            MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
+            val currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+
+
+            // Set the audio attributes for the MediaPlayer (for Android 21+)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+                mediaPlayer.setAudioAttributes(audioAttributes)
+            } else {
+                // For earlier Android versions, use deprecated setAudioStreamType
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+            }
+
+            // Load the MP3 sound file from the resources
+            mediaPlayer = MediaPlayer.create(currentContext, R.raw.camera_shutter)
+
+            // Adjust the volume (0.0f for silent, 1.0f for full volume)
+            mediaPlayer.setVolume(currentVolume.toFloat(), currentVolume.toFloat())
+
+            // Start playback
+            mediaPlayer.start()
+        }else if(audio.ringerMode == AudioManager.RINGER_MODE_VIBRATE){
+            val vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            if (Build.VERSION.SDK_INT >= 26) {
+                vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                vibrator.vibrate(200)
+            }
         }
+
+
 
         // Setup image capture listener which is triggered after photo has been taken
         imageCapture?.takePicture(
