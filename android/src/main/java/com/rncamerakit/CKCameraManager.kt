@@ -115,4 +115,9 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
     fun setShutterAnimationDuration(view: CKCamera, duration: Int) {
         view.setShutterAnimationDuration(duration)
     }
+
+    @ReactProp(name = "jpegQuality")
+    fun setJpegQuality(view: CKCamera, quality: Int) {
+        view.setJpegQuality(quality)
+    }
 }

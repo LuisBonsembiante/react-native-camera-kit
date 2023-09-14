@@ -54,6 +54,7 @@ class CameraView: UIView {
     @objc var zoomMode: ZoomMode = .on
     @objc var zoom: NSNumber?
     @objc var maxZoom: NSNumber?
+    @objc var jpegQuality: NSNumber =  0.9
 
     // MARK: - Setup
 
@@ -154,11 +155,11 @@ class CameraView: UIView {
         if changedProps.contains("cameraType") || changedProps.contains("torchMode") {
             camera.update(torchMode: torchMode)
         }
-        
+
         if changedProps.contains("onOrientationChange") {
             camera.update(onOrientationChange: onOrientationChange)
         }
-        
+
         if changedProps.contains("onZoom") {
             camera.update(onZoom: onZoom)
         }
@@ -219,14 +220,18 @@ class CameraView: UIView {
         if changedProps.contains("zoomMode") {
             self.update(zoomMode: zoomMode)
         }
-        
+
         if changedProps.contains("zoom") {
             camera.update(zoom: zoom?.doubleValue)
         }
-        
+
         if changedProps.contains("maxZoom") {
             camera.update(maxZoom: maxZoom?.doubleValue)
         }
+
+         if changedProps.contains("jpegQuality") {
+            camera.update(jpegQuality: jpegQuality.doubleValue)
+         }
     }
 
     // MARK: Public
@@ -250,7 +255,7 @@ class CameraView: UIView {
             }
         }, onError: onError)
     }
-    
+
     // MARK: - Private Helper
 
     private func update(zoomMode: ZoomMode) {
@@ -267,7 +272,7 @@ class CameraView: UIView {
             }
         }
     }
-    
+
     private func handleCameraPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
@@ -293,7 +298,7 @@ class CameraView: UIView {
                                onError: @escaping (_ error: String) -> ()) {
         do {
             let temporaryImageFileURL = try saveToTmpFolder(imageData)
-            
+
             onSuccess([
                 "size": imageData.count,
                 "uri": temporaryImageFileURL.description,

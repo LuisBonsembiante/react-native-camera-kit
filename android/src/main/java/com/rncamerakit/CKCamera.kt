@@ -101,6 +101,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var maxZoom: Double? = null
     private var zoomStartedAt = 1.0f
     private var pinchGestureStartedAt = 0.0f
+    private var jpegQuality = 0.9
 
     // Barcode Props
     private var scanBarcode: Boolean = false
@@ -298,6 +299,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 // Set initial target rotation, we will have to call this again if rotation changes
                 // during the lifecycle of this use case
                 .setTargetRotation(rotation)
+                .setJpegQuality(jpegQuality)
                 .build()
 
         // ImageAnalysis
@@ -616,6 +618,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         val restartCamera = enabled != scanBarcode
         scanBarcode = enabled
         if (restartCamera) bindCameraUseCases()
+    }
+
+    fun setJpegQuality(quality: Int) {
+        jpegQuality = quality
     }
 
     fun setCameraType(type: String = "back") {
