@@ -101,7 +101,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var maxZoom: Double? = null
     private var zoomStartedAt = 1.0f
     private var pinchGestureStartedAt = 0.0f
-    private var jpegQuality = 0.9
+    private var jpegQuality = 1
 
     // Barcode Props
     private var scanBarcode: Boolean = false
