@@ -45,7 +45,7 @@ import kotlin.math.min
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Vibrator
-import android.os.VibrationEffect
+
 
 class RectOverlay constructor(context: Context) :
         View(context) {
@@ -429,7 +429,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         }else if(audio.ringerMode == AudioManager.RINGER_MODE_VIBRATE){
             val vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             if (Build.VERSION.SDK_INT >= 26) {
-                vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+                // vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
                 vibrator.vibrate(200)
             }
